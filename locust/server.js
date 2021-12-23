@@ -14,8 +14,8 @@ app.use('/', router);
 
 router.post('/', async (req, res) => {
     const { name, location, age, vaccine_type, n_dose } = req.body;
-    console.log({recibo: 'Siu', name:name, location:location, age:age, vaccine_type:vaccine_type, n_dose:n_dose});
-    res.json({recibo: 'Siu', name:name, location:location, age:age, vaccine_type:vaccine_type, n_dose:n_dose});
+    console.log({name:name, location:location, age:age, vaccine_type:vaccine_type, n_dose:n_dose});
+    res.json({name:name, location:location, age:age, vaccine_type:vaccine_type, n_dose:n_dose});
 });
 
 // Starting the server
