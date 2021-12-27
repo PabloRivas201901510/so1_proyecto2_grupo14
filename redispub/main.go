@@ -40,6 +40,11 @@ func main() {
 		if err := redisClient.Publish(ctx, "send-vacun-data", res).Err(); err != nil {
 			panic(err)
 		}
+
+		if err := redisClient.LPush(ctx, "list-vacun-data", res).Err(); err != nil {
+			panic(err)
+		}
+
 		return c.SendStatus(200)
 	})
 
