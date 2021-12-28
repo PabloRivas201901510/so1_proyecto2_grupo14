@@ -25,10 +25,10 @@ func server_conexion(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	datos, _ := ioutil.ReadAll(r.Body)
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		json.NewEncoder(w).Encode("Error, no se puede conectar con el servidor grpc")
-		log.Fatalf("No se puede conectar con el server :c (%v)", err)
+	conn, err1 := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	if err1 != nil {
+		json.NewEncoder(w).Encode("Error, can not connect to server grpc")
+		log.Fatalf("Can't connect to the server(%v)", err1)
 	}
 
 	defer conn.Close()
@@ -45,12 +45,12 @@ func server_conexion(w http.ResponseWriter, r *http.Request) {
 
 	re, err := clie.ReturnInfo(cx, &pb.RequestId{Id: id})
 	if err != nil {
-		json.NewEncoder(w).Encode("Error, no  se puede retornar la información.")
-		log.Fatalf("No se puede retornar la información :c (%v)", err)
+		json.NewEncoder(w).Encode("Error, the information cannot be returned.")
+		log.Fatalf("Information cannot be returned (%v)", err)
 	}
 
-	log.Printf("Respuesta del server: %s\n", re.GetInfo())
-	json.NewEncoder(w).Encode("Se ha almacenado la información")
+	log.Printf("Server response: %s\n", re.GetInfo())
+	json.NewEncoder(w).Encode("The information has been stored")
 }
 
 func main() {

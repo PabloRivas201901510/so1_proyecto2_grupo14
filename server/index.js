@@ -1,4 +1,4 @@
-// const Registro = require('./models/registro')
+const Registro = require('./models/registro')
 const mongoose = require('mongoose')
 const express = require('express')
 const cors = require('cors')
@@ -7,11 +7,13 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// const options = { useNewUrlParser: true, useUnifiedTopology: true }
+
+
+
 
 mongoose
-  .connect('mongodb://172.17.0.2:27017/app')
-  .then(() => {
+  .connect('mongodb://localhost:27017')
+  .then((res) => {
     console.log('Conectado a MongoDB')
   })
   .catch((err) => {
@@ -19,4 +21,22 @@ mongoose
     console.log(err)
   })
 
-app.listen(8001, 'so1g14.tk', () => console.log('Server levantado en el puerto 8001'))
+Registro.find(
+  {
+    name: "Felipe2",
+    location: "Mixco",
+    age: 22,
+    vaccine_type: "Sputnik",
+    n_dose: 2
+  }
+)
+.then(doc => {
+  console.log(doc)
+})
+.catch(err => {
+  console.error(err)
+})
+
+
+
+app.listen(8001, 'localhost', () => console.log('Server levantado en el puerto 8001'))

@@ -41,33 +41,31 @@ type server struct {
 func arrange(registro string) {
 	ctx, err := context.WithTimeout(context.Background(), 10*time.Second)
 	defer err()
-	mongoclient, err := mongo.Connect(ctx, options.Client().ApplyURI("**ruta de conexión con mongo**"))
-	if err != nil {
+	mongoclient, err1 := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err1 != nil {
 		log.Fatal(err)
 	}
 
-	datab, err := mongoclient.ListDatabaseNames(ctx, bson.M{})
-	if err != nil {
+	datab, err2 := mongoclient.ListDatabaseNames(ctx, bson.M{})
+	if err2 != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println(datab)
 
-	DataBase := mongoclient.Database("***** NOMBRE DE LA BASE DE DATOS ****")
-	Collection := DataBase.Collection("***** NOMBRE DE LA TABLA ****")
+	DataBase := mongoclient.Database("covid")
+	Collection := DataBase.Collection("vacundata")
 
 	var bdoc interface{}
 
-	convert := bson.UnmarshalExtJSON([]byte(registro), true, &bdoc)
+	errb := bson.UnmarshalExtJSON([]byte(registro), true, &bdoc)
+	fmt.Println(errb)
 
-	fmt.Println(convert)
-
-	insert, err := Collection.InsertOne(ctx, convert)
-	if err != nil {
+	insertResult, err6 := Collection.InsertOne(ctx, bdoc)
+	if err6 != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println(insert)
+	fmt.Println(insertResult)
 }
 
 func (s *server) ReturnInfo(ctx context.Context, in *pb.RequestId) (*pb.ReplyInfo, error) {
@@ -77,13 +75,16 @@ func (s *server) ReturnInfo(ctx context.Context, in *pb.RequestId) (*pb.ReplyInf
 }
 
 func main() {
+	fmt.Println("Levantando Server.....")
 	listened, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	ser := grpc.NewServer()
 	pb.RegisterGetInfoServer(ser, &server{})
 	if err := ser.Serve(listened); err != nil {
 		log.Fatal("Error al levantar el servidor \n", err)
 	}
+
 }
