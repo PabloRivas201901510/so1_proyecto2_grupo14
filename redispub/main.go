@@ -4,8 +4,16 @@ import (
 	"context"
 	"encoding/json"
 
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
+
+	"fmt"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type registro struct {
@@ -19,7 +27,8 @@ type registro struct {
 var ctx = context.Background()
 
 var redisClient = redis.NewClient(&redis.Options{
-	Addr: "localhost:6379",
+	Addr:     "35.230.106.175:6379",
+	Password: "grupo14so1",
 })
 
 func main() {
@@ -41,6 +50,8 @@ func main() {
 			panic(err)
 		}
 
+		arrange(string(res))
+
 		if err := redisClient.LPush(ctx, "list-vacun-data", res).Err(); err != nil {
 			panic(err)
 		}
@@ -49,4 +60,34 @@ func main() {
 	})
 
 	app.Listen(":3030")
+}
+
+func arrange(registro string) {
+	ctx, err := context.WithTimeout(context.Background(), 10*time.Second)
+	defer err()
+	mongoclient, err1 := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://35.230.106.175:27017"))
+	if err1 != nil {
+		panic(err)
+	}
+
+	datab, err2 := mongoclient.ListDatabaseNames(ctx, bson.M{})
+	if err2 != nil {
+		panic(err)
+	}
+
+	fmt.Println(datab)
+
+	DataBase := mongoclient.Database("covid")
+	Collection := DataBase.Collection("vacundata")
+
+	var bdoc interface{}
+
+	errb := bson.UnmarshalExtJSON([]byte(registro), true, &bdoc)
+	fmt.Println(errb)
+
+	insertResult, err6 := Collection.InsertOne(ctx, bdoc)
+	if err6 != nil {
+		panic(err)
+	}
+	fmt.Println(insertResult)
 }

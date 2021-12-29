@@ -1,9 +1,11 @@
-FROM golang:1.17
+FROM golang:1.17-alpine
 
-WORKDIR /
-COPY . .
-
+COPY go.mod ./
+COPY go.sum ./
 RUN go mod download
+COPY *.go ./
+
+FROM gcr.io/distroless/static
 
 EXPOSE 8000
 

@@ -8,6 +8,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,7 +17,13 @@ import (
 
 const (
 	port = ":50051"
+	dir  = "35.230.106.175:6379"
 )
+
+var redisClient = redis.NewClient(&redis.Options{
+	Addr:     "35.230.106.175:6379",
+	Password: "grupo14so1",
+})
 
 type registro struct {
 	Name         string `json:"name"`
@@ -39,9 +46,10 @@ type server struct {
 }
 
 func arrange(registro string) {
+	//------------ MONGO
 	ctx, err := context.WithTimeout(context.Background(), 10*time.Second)
 	defer err()
-	mongoclient, err1 := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	mongoclient, err1 := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://35.230.106.175:27017"))
 	if err1 != nil {
 		log.Fatal(err)
 	}
@@ -66,6 +74,18 @@ func arrange(registro string) {
 		log.Fatal(err)
 	}
 	fmt.Println(insertResult)
+
+	//------------- REDIS
+
+	/*res, err7 := json.Marshal(bdoc)
+	if err7 != nil {
+		panic(err7)
+	}*/
+
+	if err8 := redisClient.LPush(ctx, "list-vacun-data", registro).Err(); err8 != nil {
+		panic(err8)
+	}
+
 }
 
 func (s *server) ReturnInfo(ctx context.Context, in *pb.RequestId) (*pb.ReplyInfo, error) {

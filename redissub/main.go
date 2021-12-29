@@ -19,7 +19,8 @@ type registro struct {
 var ctx = context.Background()
 
 var redisClient = redis.NewClient(&redis.Options{
-	Addr: "localhost:6379",
+	Addr:     "35.230.106.175:6379",
+	Password: "grupo14so1",
 })
 
 func main() {
@@ -33,13 +34,13 @@ func main() {
 			panic(err)
 		}
 
-		a := redisClient.LRange(ctx, "list-vacun-data", 0,4)
-		
+		a := redisClient.LRange(ctx, "list-vacun-data", 0, 4)
+
 		for i, s := range a.Val() {
 			if err := json.Unmarshal([]byte(s), &reg); err != nil {
 				panic(err)
 			}
-			if i == -1{
+			if i == -1 {
 				fmt.Println(i)
 				if err := json.Unmarshal([]byte(msg.Payload), &reg); err != nil {
 					panic(err)
