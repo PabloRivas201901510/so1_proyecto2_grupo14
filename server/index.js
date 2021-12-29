@@ -5,6 +5,10 @@ const socketio =  require('socket.io');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const redis = require('redis');
+const client = redis.createClient({
+  url: 'redis://:grupo14so1@35.230.106.175:6379'
+});
 
 const app = express()
 app.use(cors())
@@ -20,18 +24,14 @@ const io = socketio(servidor, {
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://35.230.106.175:27017";
 
-
-
-io.on('connection', socket => {
-  console.log("Conectado");
-
-  interval = setInterval(() => {
-      Comentario.find().exec().then(
-          x => socket.emit("Comentarios", x));
-  }, 500);
-
-  socket.on('disconnect', () => { 
-      console.log("Desconectado");
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('message', (message) => {
+      console.log(message);
+      io.emit('message', message);
+  });
+  socket.on('disconnect', () => {
+      console.log('a user disconnected!');
   });
 });
 
@@ -46,7 +46,17 @@ MongoClient.connect(url, function(err, db) {
   });
 });
 
+async function getVacunados(req, res, next) {
+  try {
+    await client.connect();
+    let retorno = await client.lRange('list-vacun-data', '0', '4');
+    res.send(retorno);
+  } catch (err) {
+    console.error(err);
+    res.status(500);
+  }
+}
 
-
+app.get('/redis', getVacunados);
 
 app.listen(8080, 'localhost', () => console.log('Server levantado en el puerto 8080'))
