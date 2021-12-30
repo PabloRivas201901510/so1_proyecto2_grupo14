@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	pb "grpcserver/proto-grpc"
 	"log"
@@ -17,15 +18,15 @@ import (
 
 const (
 	port = ":50051"
-	dir  = "35.230.106.175:6379"
+	dir  = "34.82.25.144:6379"
 )
 
 var redisClient = redis.NewClient(&redis.Options{
-	Addr:     "35.230.106.175:6379",
+	Addr:     "34.82.25.144:6379",
 	Password: "grupo14so1",
 })
 
-type registro struct {
+type registro1 struct {
 	Name         string `json:"name"`
 	Location     string `json:"location"`
 	Age          int    `json:"age"`
@@ -49,7 +50,7 @@ func arrange(registro string) {
 	//------------ MONGO
 	ctx, err := context.WithTimeout(context.Background(), 10*time.Second)
 	defer err()
-	mongoclient, err1 := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://35.230.106.175:27017"))
+	mongoclient, err1 := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://www.so1g14.tk:27017"))
 	if err1 != nil {
 		log.Fatal(err)
 	}
@@ -81,6 +82,34 @@ func arrange(registro string) {
 	if err7 != nil {
 		panic(err7)
 	}*/
+
+	reg := registro1{}
+
+	if err := json.Unmarshal([]byte(registro), &reg); err != nil {
+		panic(err)
+	}
+
+	if reg.Age < 11 {
+		if err := redisClient.LPush(ctx, "ninos", reg.Age).Err(); err != nil {
+			panic(err)
+		}
+	} else if reg.Age < 19 {
+		if err := redisClient.LPush(ctx, "adolescentes", reg.Age).Err(); err != nil {
+			panic(err)
+		}
+	} else if reg.Age < 27 {
+		if err := redisClient.LPush(ctx, "jovenes", reg.Age).Err(); err != nil {
+			panic(err)
+		}
+	} else if reg.Age < 59 {
+		if err := redisClient.LPush(ctx, "adultos", reg.Age).Err(); err != nil {
+			panic(err)
+		}
+	} else {
+		if err := redisClient.LPush(ctx, "vejez", reg.Age).Err(); err != nil {
+			panic(err)
+		}
+	}
 
 	if err8 := redisClient.LPush(ctx, "list-vacun-data", registro).Err(); err8 != nil {
 		panic(err8)

@@ -14,7 +14,7 @@ const express_1 = __importDefault(require("express"));
 
 // REDIS
 const client = redis.createClient({
-  url: 'redis://:grupo14so1@35.230.106.175:6379'
+  url: 'redis://:grupo14so1@34.82.25.144:6379'
 });
 
 client.on('connect', function(){
@@ -57,10 +57,7 @@ app.use(express_1.default.urlencoded({ extended: false }));
     db.close();
   });
 });*/
-
-async function start(){
-  await client.connect()
-}
+var respuesta = "";
 
 async function getVacunados() {
   try {
@@ -79,9 +76,9 @@ async function getVacunados() {
       "retorno4" : retorno4,
       "retorno5" : retorno5,
     }
+    respuesta = "{\"retorno\":["+retorno+"],\"retorno1\":"+retorno1+",\"retorno2\":"+retorno2+",\"retorno3\":"+retorno3+",\"retorno4\":"+retorno4+",\"retorno5\":"+retorno5+"}"
     await client.quit();
-    await client.disconnect();
-    
+    //await client.disconnect();
   } catch (err) {
     console.error("ERROR", err);
   }
@@ -91,10 +88,11 @@ io.on('connection', (socket) => {
   console.log("conectado")
   
   setInterval( () => {
-    console.log("message")
     getVacunados()
-    socket.emit("message", "funciono")
-  }, 2000);
+    console.log("message", respuesta)
+    
+    socket.emit("message", respuesta)
+  }, 5000);
 });
 
 

@@ -15,7 +15,7 @@ export class ComponentHomeComponent implements OnInit {
   ngOnInit(): void {
     this.webSocketService.getNewMessage().subscribe((message: string) => {
       console.log("data ->>", message)
-      this.message += message+ "\n";   
+      this.message = message+ "\n";   
     });
   }
 
