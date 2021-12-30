@@ -17,7 +17,7 @@ const client = redis.createClient({
   url: 'redis://:grupo14so1@35.230.106.175:6379'
 });
 
-client.on('connect', function(){
+client.on('connect', function () {
   console.log("conectado redis");
 });
 
@@ -31,7 +31,7 @@ const io = require('socket.io')(servidor, {
 
 app = express_1.default();
 
-const port = process.env.PORT || 5050;
+const port = 8080;
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 
@@ -45,8 +45,6 @@ app.use(express_1.default.urlencoded({ extended: false }));
 //var url = "mongodb://35.230.106.175:27017";
 
 
-
-
 /*MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   var dbo = db.db("covid");
@@ -58,7 +56,7 @@ app.use(express_1.default.urlencoded({ extended: false }));
   });
 });*/
 
-async function start(){
+async function start() {
   await client.connect()
 }
 
@@ -72,16 +70,16 @@ async function getVacunados() {
     let retorno4 = await client.lLen('adultos');
     let retorno5 = await client.lLen('vejez');
     var envio = {
-      "retorno" : retorno,
-      "retorno1" : retorno1,
-      "retorno2" : retorno2,
-      "retorno3" : retorno3,
-      "retorno4" : retorno4,
-      "retorno5" : retorno5,
+      "retorno": retorno,
+      "retorno1": retorno1,
+      "retorno2": retorno2,
+      "retorno3": retorno3,
+      "retorno4": retorno4,
+      "retorno5": retorno5,
     }
     await client.quit();
     await client.disconnect();
-    
+
   } catch (err) {
     console.error("ERROR", err);
   }
@@ -89,8 +87,8 @@ async function getVacunados() {
 
 io.on('connection', (socket) => {
   console.log("conectado")
-  
-  setInterval( () => {
+
+  setInterval(() => {
     console.log("message")
     getVacunados()
     socket.emit("message", "funciono")
@@ -100,6 +98,6 @@ io.on('connection', (socket) => {
 
 
 
-servidor.listen(port, () => console.log(`listening on port ${port}`) )
+servidor.listen(port, () => console.log(`listening on port ${port}`))
 
 
