@@ -20,7 +20,7 @@ import { ServiceRedisService } from './services/service-redis.service';
     HttpClientModule,
     ChartsModule
   ],
-  providers: [ServiceRedisService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

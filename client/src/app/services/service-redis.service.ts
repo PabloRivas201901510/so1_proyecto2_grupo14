@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { io } from "socket.io-client";
 
@@ -7,22 +7,17 @@ import { io } from "socket.io-client";
 })
 export class ServiceRedisService {
 
-  public socket:any
-  constructor() {
-    this.socket = io('http://localhost:5050');
-  }
+  public message$: BehaviorSubject<string> = new BehaviorSubject('');
 
-   
+  constructor() {}
 
-  listen(eventName : String){
-    return new Observable((Subscriber)=> {
-      this.socket.on(eventName, (data : any) => {
-        Subscriber.next(data)
-      })
-    })
-  }
+  socket = io('http://localhost:5050');
 
-  emit(eventName : String, data : any){
-    this.socket.emit(eventName, data)
-  }
+  public getNewMessage = () => {
+    this.socket.on('message', (message) =>{
+      console.log("data-> ", message)
+      this.message$.next(message);
+    });
+    return this.message$.asObservable();
+  };
 }

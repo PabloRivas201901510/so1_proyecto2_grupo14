@@ -8,15 +8,15 @@ import {ServiceRedisService} from '../../services/service-redis.service'
 })
 export class ComponentHomeComponent implements OnInit {
 
-  eventName = "send-message"
   public message: string = "h";
 
   constructor(private webSocketService: ServiceRedisService) { }
 
   ngOnInit(): void {
-    this.webSocketService.listen('text-event').subscribe((data) => {
-      this.message = data+"";
-    })
+    this.webSocketService.getNewMessage().subscribe((message: string) => {
+      console.log("data ->>", message)
+      this.message += message+ "\n";   
+    });
   }
 
 }
