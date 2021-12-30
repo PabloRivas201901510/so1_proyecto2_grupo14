@@ -1,12 +1,10 @@
 FROM golang:1.17-alpine
 
-COPY go.mod ./
-COPY go.sum ./
+WORKDIR /
+COPY . .
+
 RUN go mod download
-COPY *.go ./
 
-FROM gcr.io/distroless/static
-
-EXPOSE 8000
+EXPOSE 50051
 
 CMD ["go", "run", "server.go"]

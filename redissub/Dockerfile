@@ -7,7 +7,6 @@ RUN go mod init
 RUN go get -d -v ./...
 RUN go vet -v
 RUN go test -v
-RUN redis-cli subscribe 'send-vacun-data'
 
 RUN CGO_ENABLED=0 go build -o /go/bin/app
 

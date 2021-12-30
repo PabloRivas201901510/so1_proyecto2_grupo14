@@ -1,7 +1,6 @@
 const Registro = require('./models/registro')
 const express = require('express');
 const http = require('http');
-const socketio =  require('socket.io');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -12,30 +11,28 @@ const client = redis.createClient({
 
 const app = express()
 app.use(cors())
-app.use(express.json())
 
 const servidor = http.createServer(app);
-const io = socketio(servidor, {
-    cors: {
-        origin: "*"
-    },
-});
+
+
+const io = require('socket.io')(servidor);
 
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://35.230.106.175:27017";
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('message', (message) => {
-      console.log(message);
-      io.emit('message', message);
-  });
-  socket.on('disconnect', () => {
-      console.log('a user disconnected!');
-  });
+io.on('connection', function(socket){
+  socket.on('send-message', function(data){
+    socket.emit('text-event', "hola mundio")
+    socket.broadcast.emit('text-event', "hola mundio")
+  })
+  /*interval = setInterval( () => {
+    getVacunados();
+    socket.emit("data", "funciono")
+  }, 2000);*/
 });
 
-MongoClient.connect(url, function(err, db) {
+
+/*MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   var dbo = db.db("covid");
   dbo.collection("vacundata").find({}).toArray(function(err, result) {
@@ -44,19 +41,35 @@ MongoClient.connect(url, function(err, db) {
     io.emit('message', result);
     db.close();
   });
-});
+});*/
 
-async function getVacunados(req, res, next) {
+async function getVacunados() {
   try {
     await client.connect();
     let retorno = await client.lRange('list-vacun-data', '0', '4');
-    res.send(retorno);
+    let retorno1 = await client.lLen('ninos');
+    let retorno2 = await client.lLen('adolescentes');
+    let retorno3 = await client.lLen('jovenes');
+    let retorno4 = await client.lLen('adultos');
+    let retorno5 = await client.lLen('vejez');
+    var envio = {
+      "retorno" : retorno,
+      "retorno1" : retorno1,
+      "retorno2" : retorno2,
+      "retorno3" : retorno3,
+      "retorno4" : retorno4,
+      "retorno5" : retorno5,
+    }
+    io.emit('message', envio);
+    console.log("se envio")
+    await client.quit();
+    return envio
   } catch (err) {
     console.error(err);
     res.status(500);
   }
 }
 
-app.get('/redis', getVacunados);
+app.listen(5050, () => console.log('Server levantado en el puerto 5050') )
 
-app.listen(8080, 'localhost', () => console.log('Server levantado en el puerto 8080'))
+
