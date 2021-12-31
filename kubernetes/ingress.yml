@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: project
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: www.so1g14.tk
+      http:
+        paths:
+          - backend:
+              service:
+                name: exampleService
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
