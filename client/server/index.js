@@ -17,7 +17,7 @@ const client = redis.createClient({
   url: 'redis://:grupo14so1@34.82.25.144:6379'
 });
 
-client.on('connect', function () {
+client.on('connect', function(){
   console.log("conectado redis");
 });
 
@@ -31,7 +31,7 @@ const io = require('socket.io')(servidor, {
 
 app = express_1.default();
 
-const port = 8080;
+const port = process.env.PORT || 5050;
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 
@@ -45,6 +45,8 @@ app.use(express_1.default.urlencoded({ extended: false }));
 //var url = "mongodb://35.230.106.175:27017";
 
 
+
+
 /*MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   var dbo = db.db("covid");
@@ -55,14 +57,7 @@ app.use(express_1.default.urlencoded({ extended: false }));
     db.close();
   });
 });*/
-<<<<<<< HEAD:server/index.js
 var respuesta = "";
-=======
-
-async function start() {
-  await client.connect()
-}
->>>>>>> 2c718be8b82133760e31ef35895dcd8fde99fa38:vm/server/index.js
 
 async function getVacunados() {
   try {
@@ -74,21 +69,16 @@ async function getVacunados() {
     let retorno4 = await client.lLen('adultos');
     let retorno5 = await client.lLen('vejez');
     var envio = {
-      "retorno": retorno,
-      "retorno1": retorno1,
-      "retorno2": retorno2,
-      "retorno3": retorno3,
-      "retorno4": retorno4,
-      "retorno5": retorno5,
+      "retorno" : retorno,
+      "retorno1" : retorno1,
+      "retorno2" : retorno2,
+      "retorno3" : retorno3,
+      "retorno4" : retorno4,
+      "retorno5" : retorno5,
     }
     respuesta = "{\"retorno\":["+retorno+"],\"retorno1\":"+retorno1+",\"retorno2\":"+retorno2+",\"retorno3\":"+retorno3+",\"retorno4\":"+retorno4+",\"retorno5\":"+retorno5+"}"
     await client.quit();
-<<<<<<< HEAD:server/index.js
     //await client.disconnect();
-=======
-    await client.disconnect();
-
->>>>>>> 2c718be8b82133760e31ef35895dcd8fde99fa38:vm/server/index.js
   } catch (err) {
     console.error("ERROR", err);
   }
@@ -96,14 +86,8 @@ async function getVacunados() {
 
 io.on('connection', (socket) => {
   console.log("conectado")
-<<<<<<< HEAD:server/index.js
   
   setInterval( () => {
-=======
-
-  setInterval(() => {
-    console.log("message")
->>>>>>> 2c718be8b82133760e31ef35895dcd8fde99fa38:vm/server/index.js
     getVacunados()
     console.log("message", respuesta)
     
@@ -114,6 +98,6 @@ io.on('connection', (socket) => {
 
 
 
-servidor.listen(port, () => console.log(`listening on port ${port}`))
+servidor.listen(port, () => console.log(`listening on port ${port}`) )
 
 
