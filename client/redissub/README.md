@@ -1,1 +1,0 @@
-Se suscribe al canal 'send-vacun-data' con el comando: redis-cli subscribe 'send-vacun-data'

@@ -15,7 +15,7 @@ export class ServiceRedisService {
 
   public getNewMessage = () => {
     this.socket.on('message', (message) =>{
-      console.log("data-> ", message)
+      //console.log("data-> ", message)
       this.message$.next(message);
     });
     return this.message$.asObservable();

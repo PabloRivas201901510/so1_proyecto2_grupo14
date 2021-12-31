@@ -19,7 +19,7 @@ type registro struct {
 var ctx = context.Background()
 
 var redisClient = redis.NewClient(&redis.Options{
-	Addr:     "35.230.106.175:6379",
+	Addr:     "34.82.25.144:6379",
 	Password: "grupo14so1",
 })
 
@@ -35,7 +35,11 @@ func main() {
 		}
 
 		a := redisClient.LRange(ctx, "list-vacun-data", 0, 4)
-
+		b := redisClient.LLen(ctx, "ninos")
+		c := redisClient.LLen(ctx, "adolescentes")
+		d := redisClient.LLen(ctx, "jovenes")
+		e := redisClient.LLen(ctx, "adultos")
+		f := redisClient.LLen(ctx, "vejez")
 		for i, s := range a.Val() {
 			if err := json.Unmarshal([]byte(s), &reg); err != nil {
 				panic(err)
@@ -50,5 +54,10 @@ func main() {
 
 			fmt.Printf("%+v\n", reg)
 		}
+		fmt.Println(b.Val())
+		fmt.Println(c.Val())
+		fmt.Println(d.Val())
+		fmt.Println(e.Val())
+		fmt.Println(f.Val())
 	}
 }
