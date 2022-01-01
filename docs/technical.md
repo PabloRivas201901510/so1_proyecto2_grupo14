@@ -21,6 +21,8 @@
     - [Creación de un cliente web en Docker](#creación-de-un-cliente-web-en-docker)
     - [Implementación de imágenes Docker en la máquina virtual](#implementación-de-imágenes-docker-en-la-máquina-virtual)
   - [Clúster de Kubernetes](#clúster-de-kubernetes)
+  - [Redis](#redis)
+    - [Redis Pub](#redis-pub)
 
 ## Glosario
 | Término | Definición                                                           |
@@ -81,7 +83,7 @@ EXPOSE 8080
 CMD [ "npm", "run", "start" ]
 ```
 
-Las instruccioens de arriba son las siguientes:
+Las instrucciones de arriba son las siguientes:
 - `FROM node:latest`: Especifica node:latest como imagen base para la que se creará la imagen.
 - `WORKDIR /server`: Especifica que el directorio /server será el directorio de trabajo del contenedor.
 - `COPY package.json .`: Copia el archivo package.json al directorio actual.
@@ -119,7 +121,7 @@ FROM nginx:alpine
 COPY --from=build-step /client/dist/client /usr/share/nginx/html
 ```
 
-Las instruccioens de arriba son las siguientes:
+Las instrucciones de arriba son las siguientes:
 - `FROM node:alpine as build-step`: Especifica node:alpine como imagen base para la que se creará la imagen.
 - `WORKDIR /client`: Especifica que el directorio /client será el directorio de trabajo del contenedor.
 - `COPY package.json .`: Copia el archivo package.json al directorio actual.
@@ -152,3 +154,84 @@ Por último, se debe ejecutar `docker pull` con el repositorio que aloja la imag
 
 ## Clúster de Kubernetes
 cuerpo
+
+## Redis
+
+### Redis Pub
+El dockerfile para nuestro Redis Pub seria como el siguiente:
+```Dockerfile
+# syntax=docker/dockerfile:1
+
+FROM golang:1.17-alpine
+
+WORKDIR /app
+
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+COPY *.go ./
+
+EXPOSE 3030
+
+CMD ["go", "run", ["nombre de archivo GO"]]
+```
+
+Las instrucciones de arriba son las siguientes:
+- `FROM golang:1.17-alpine`: Especifica golang:1.17-alpine como imagen base para la que se creará la imagen.
+- `WORKDIR /app`: Especifica que el directorio /app será el directorio de trabajo del contenedor.
+- `COPY go.mod ./`: Copia el archivo go.mod al directorio actual.
+- `COPY go.sum ./`: Copia el archivo go.mod al directorio actual.
+- `RUN go mod download`: Ejecuta el comando npm i para instalar las dependencias.
+- `COPY *.go ./`: Copia el código fuente al directorio actual.
+- `EXPOSE 3030`: Expone el puerto 3030 para nuestro Pub.
+- `CMD ["go", "run", ["nombre de archivo GO"]]`: Ejecuta el codigo fuente de nuestro pub en el contenedor.
+
+Una vez que se haya creado el Dockerfile, se puede ejecutar el siguiente comando para crear la imagen:
+```sh
+sudo docker build -t [usuarioRepo]/redispub .
+```
+
+Con dicha imagen creada, se puede ejecutar el siguiente comando para crear un contenedor:
+```sh
+docker run -d -p 80:80 --name redispub redispub
+```
+### Redis Sub
+El dockerfile para nuestro Redis Sub seria como el siguiente:
+```Dockerfile
+# syntax=docker/dockerfile:1
+
+FROM golang:1.17-alpine
+
+WORKDIR /app
+
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+COPY *.go ./
+
+EXPOSE 3030
+
+CMD ["go", "run", ["nombre de archivo GO"]]
+```
+
+Las instrucciones de arriba son las siguientes:
+- `FROM golang:1.17-alpine`: Especifica golang:1.17-alpine como imagen base para la que se creará la imagen.
+- `WORKDIR /app`: Especifica que el directorio /app será el directorio de trabajo del contenedor.
+- `COPY go.mod ./`: Copia el archivo go.mod al directorio actual.
+- `COPY go.sum ./`: Copia el archivo go.mod al directorio actual.
+- `RUN go mod download`: Ejecuta el comando npm i para instalar las dependencias.
+- `COPY *.go ./`: Copia el código fuente al directorio actual.
+- `EXPOSE 3030`: Expone el puerto 3030 para nuestro Pub.
+- `CMD ["go", "run", ["nombre de archivo GO"]]`: Ejecuta el codigo fuente de nuestro pub en el contenedor.
+
+Una vez que se haya creado el Dockerfile, se puede ejecutar el siguiente comando para crear la imagen:
+```sh
+sudo docker build -t [usuarioRepo]/redissub .
+```
+
+Con dicha imagen creada, se puede ejecutar el siguiente comando para crear un contenedor:
+```sh
+docker run -d -p 80:80 --name redissub redispub
+```
