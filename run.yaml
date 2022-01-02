@@ -117,7 +117,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: redispub.so1g14.tk
+    - host: redispub.labso1-vac2021.tk
       http:
         paths:
           - backend:
@@ -182,7 +182,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: redissub.so1g14.tk
+    - host: redissub.labso1-vac2021.tk
       http:
         paths:
           - backend:
@@ -245,7 +245,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: grpcclient.so1g14.tk
+    - host: grpcclient.labso1-vac2021.tk
       http:
         paths:
           - backend:
@@ -308,7 +308,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: grpcserver.so1g14.tk
+    - host: grpcserver.labso1-vac2021.tk
       http:
         paths:
           - backend:
