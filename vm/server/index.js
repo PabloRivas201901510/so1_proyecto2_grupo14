@@ -152,7 +152,7 @@ io.on('connection', (socket) => {
     
     socket.emit("message", respuesta + "|\n"+ respuesta1 +"|\n"+respuesta2+"|\n"+respuesta3 )
     
-  }, 5000);
+  }, 2000);
 });
 
 

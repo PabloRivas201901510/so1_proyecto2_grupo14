@@ -21,7 +21,7 @@ spec:
         app: load
     spec:
       containers:
-      - image: luisfelipedelgado/grpcclient
+      - image: luisfelipedelgado/redispub
         imagePullPolicy: Always
         name: load
 ---
@@ -62,140 +62,7 @@ spec:
                   number: 3030
             path: /
             pathType: Prefix
-
-
 ---
-
-
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: redispub
-  name: redispub
-  namespace: project
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: redispub
-  template:
-    metadata:
-      labels:
-        app: redispub
-    spec:
-      containers:
-      - image: luisfelipedelgado/redispub
-        imagePullPolicy: Always
-        name: redispub
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: redispub
-  name: redispub
-  namespace: project
-spec:
-  ports:
-  - port: 3030
-    protocol: TCP
-    targetPort: 3030
-  selector:
-    app: redispub
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: redispub-ingress
-  namespace: project
-  annotations:
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
-      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: redispub.labso1-vac2021.tk
-      http:
-        paths:
-          - backend:
-              service:
-                name: redispub
-                port: 
-                  number: 3030
-            path: /
-            pathType: Prefix
-
----
-
-
-
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: redissub
-  name: redissub
-  namespace: project
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: redissub
-  template:
-    metadata:
-      labels:
-        app: redissub
-    spec:
-      containers:
-      - image: luisfelipedelgado/redissub
-        imagePullPolicy: Always
-        name: redissub
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: redissub
-  name: redissub
-  namespace: project
-spec:
-  ports:
-  - port: 6969
-    protocol: TCP
-    targetPort: 6969
-  selector:
-    app: redissub
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: redissub-ingress
-  namespace: project
-  annotations:
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
-      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: redissub.labso1-vac2021.tk
-      http:
-        paths:
-          - backend:
-              service:
-                name: redissub
-                port: 
-                  number: 6969
-            path: /
-            pathType: Prefix
-
-
----
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -255,10 +122,7 @@ spec:
                   number: 3030
             path: /
             pathType: Prefix
-
 ---
-
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -296,10 +160,47 @@ spec:
   selector:
     app: grpcserver
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redispub
+  name: redispub
+  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redispub
+  template:
+    metadata:
+      labels:
+        app: redispub
+    spec:
+      containers:
+      - image: luisfelipedelgado/redispub
+        imagePullPolicy: Always
+        name: redispub
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redispub
+  name: redispub
+  namespace: project
+spec:
+  ports:
+  - port: 3030
+    protocol: TCP
+    targetPort: 3030
+  selector:
+    app: redispub
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: grpcserver-ingress
+  name: redispub-ingress
   namespace: project
   annotations:
     nginx.ingress.kubernetes.io/configuration-snippet: |
@@ -308,19 +209,54 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: grpcserver.labso1-vac2021.tk
+    - host: redispub.labso1-vac2021.tk
       http:
         paths:
           - backend:
               service:
-                name: grpcserver
+                name: redispub
                 port: 
-                  number: 50051
+                  number: 3030
             path: /
             pathType: Prefix
-
 ---
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redissub
+  name: redissub
+  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redissub
+  template:
+    metadata:
+      labels:
+        app: redissub
+    spec:
+      containers:
+      - image: luisfelipedelgado/redissub
+        imagePullPolicy: Always
+        name: redissub
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redissub
+  name: redissub
+  namespace: project
+spec:
+  ports:
+  - port: 6969
+    protocol: TCP
+    targetPort: 6969
+  selector:
+    app: redissub
+---
 apiVersion: split.smi-spec.io/v1alpha2
 kind: TrafficSplit
 metadata:
