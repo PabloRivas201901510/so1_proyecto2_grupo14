@@ -26,7 +26,7 @@ const io = require('socket.io')(servidor, {
   cors: { origin: '*' }
 });
 app = express_1.default();
-const port = process.env.PORT || 5050;
+const port = 8080;
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 app.use(morgan_1.default('dev')); // debuguer para ver errores

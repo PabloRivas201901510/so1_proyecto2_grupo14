@@ -1,2 +1,2 @@
-docker build -t pabloc54/client .
+docker build -t pabloc54/client:latest .
 

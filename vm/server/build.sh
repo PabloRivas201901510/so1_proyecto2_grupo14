@@ -1,2 +1,2 @@
-docker build -t pabloc54/server .
+docker build -t pabloc54/server:latest .
 

@@ -21,6 +21,17 @@
     - [Creación de un cliente web en Docker](#creación-de-un-cliente-web-en-docker)
     - [Implementación de imágenes Docker en la máquina virtual](#implementación-de-imágenes-docker-en-la-máquina-virtual)
   - [Clúster de Kubernetes](#clúster-de-kubernetes)
+    - [Creacion de cluster de kubernetes](#creacion-de-cluster-de-kubernetes)
+    - [Configuracion en Google Cloud Platform](configuracion-en-google-cloud-platform)
+    - [Instalación de Linker](instalación-de-linker)
+    - [Instalación del dashboard](Iinstalación-del-dashboard])
+    - [Instalacion de Helm](instalacion-de-helm)
+    - [Instalar el Ingress](instalar-el-ingress)
+    - [Configurar el Ingress](configurar-el-ingress)
+    - [Optenemos IP Externa](optenemos-ip-externa)
+    - [Crear Subdominio](crear-subdominio)
+    - [Ejecuta el archivo yaml](ejecuta-el-archivo-yaml)
+    - [Ver el Dashboard](ver-el-dashboard)
   - [Redis](#redis)
     - [Redis Pub](#redis-pub)
 
@@ -153,7 +164,104 @@ En Dockerhub se pueden publicar imágenes creadas con el comando `docker build`,
 Por último, se debe ejecutar `docker pull` con el repositorio que aloja la imagen, para descargar la imagen de Dockerhub en la máquina virtual. De esta forma, se pueden crear contenedores con la imagen descargada.
 
 ## Clúster de Kubernetes
-cuerpo
+
+Para la instalcion de un cluster de kubernetes se utilizaron los siguientes pasos:
+
+### Creacion de cluster de kubernetes
+```
+gcloud container clusters create k8s-demo --num-nodes=1 --tags=allin,allout --enable-legacy-authorization --issue-client-certificate --preemptible --machine-type=n1-standard-2
+
+#Nombre del cluster: k8s-demo
+#Numero de nodos(1): --num-nodes=1
+#Tipo de VM (2 CPUs, 8GB RAM): --machine-type=n1-standard-2
+#Nota: Requerimientos minimos 2 CPUs y 4GB RAM, y 3 nodos
+#Networks rules (allin, allout): --tags=allin,allout
+#Autenticacion con certificado: --enable-legacy-authorization --issue-client-certificate
+#Habilitar el escalado automatico (Minimo de nodos 1 y maximo 3): --enable-autoscaling --min-nodes=1 --max-nodes=3
+```
+
+### Configuracion en Google Cloud Platform
+Se dirige a su cuenta de google cloud
+```
+#Kubernetes Engine
+#Clusteres
+#Accede al cluster con el nombre escogido
+#En la parte superior izquierda, seleccione 'consola'
+#Copia y ejecuta el primer link de gncloud para vincular el proyecto
+```
+### Instalación de Linker
+Acontinuacion se ve el proceso para la instalacion de linkerd
+```
+curl -fsL https://run.linkerd.io/install | sh
+export PATH=$PATH:$HOME/.linkerd2/bin
+linkerd check --pre
+linkerd install | kubectl apply -f -
+```
+
+### Instalación del dashboard
+Se instala el dashboard para acceder a la pagina de linkerd
+```
+linkerd viz install | kubectl apply -f -
+```
+### Instalacion de Helm
+El administrador de paquetes de kubernetes
+```
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+```
+
+### Instalar el Ingress
+
+```
+helm repo add stable https://charts.helm.sh/stable
+kubectl create namespace nginx-ingress
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install nginx-ingress ingress-nginx/ingress-nginx -n nginx-ingress
+helm list -n nginx-ingress
+```
+### Configurar el Ingress
+```
+kubectl get all -n nginx-ingress
+```
+
+### Optenemos IP Externa
+Obtenemos la IP externa por donde ingresan los datos
+```
+kubectl get svc -n nginx-ingress
+```
+
+### Crear Subdominio
+Acontinuacion se crea el dominio en el google cloud platform
+```
+# Seleccione Servicios de Red
+# Seleccione la opcion de Cloud DNS
+# Crea una nueva zona
+# Inserta la IP generada anteriormente
+```
+
+### Ejecuta el archivo yaml
+Se ejecuta el archivo run.yalm para proceder a realizar la inyeccion del mismo
+```
+kubectl create -f run.yaml
+
+#Inyectar namespace
+kubectl -n project get deploy -o yaml | linkerd inject - | kubectl apply -f -
+
+#OPCIONALES
+## Ver namespaces
+kubectl get namespaces
+
+## Eliminar Namespace
+kubectl delete namespace project
+```
+
+### Ver el Dashboard
+Finalmente abrimos el dasboar para comprobar que funcionen todos los nodos
+```
+linkerd viz dashboard
+```
 
 ## Redis
 
@@ -199,9 +307,7 @@ docker run -d -p 80:80 --name redispub redispub
 ### Redis Sub
 El dockerfile para nuestro Redis Sub seria como el siguiente:
 ```Dockerfile
-# syntax=docker/dockerfile:1
-
-FROM golang:1.17-alpine
+FROM golang:1.17 as build-env
 
 WORKDIR /app
 
@@ -211,19 +317,22 @@ RUN go mod download
 
 COPY *.go ./
 
-EXPOSE 3030
+RUN CGO_ENABLED=0 go build -o /go/bin/app
+
+FROM gcr.io/distroless/static
+
+COPY --from=build-env /go/bin/app /
 
 CMD ["go", "run", ["nombre de archivo GO"]]
 ```
 
 Las instrucciones de arriba son las siguientes:
-- `FROM golang:1.17-alpine`: Especifica golang:1.17-alpine como imagen base para la que se creará la imagen.
+- `FROM golang:1.17 as build-env`: Especifica golang:1.17 como imagen base para la que se creará la imagen.
 - `WORKDIR /app`: Especifica que el directorio /app será el directorio de trabajo del contenedor.
 - `COPY go.mod ./`: Copia el archivo go.mod al directorio actual.
 - `COPY go.sum ./`: Copia el archivo go.mod al directorio actual.
 - `RUN go mod download`: Ejecuta el comando npm i para instalar las dependencias.
 - `COPY *.go ./`: Copia el código fuente al directorio actual.
-- `EXPOSE 3030`: Expone el puerto 3030 para nuestro Pub.
 - `CMD ["go", "run", ["nombre de archivo GO"]]`: Ejecuta el codigo fuente de nuestro pub en el contenedor.
 
 Una vez que se haya creado el Dockerfile, se puede ejecutar el siguiente comando para crear la imagen:
@@ -233,5 +342,5 @@ sudo docker build -t [usuarioRepo]/redissub .
 
 Con dicha imagen creada, se puede ejecutar el siguiente comando para crear un contenedor:
 ```sh
-docker run -d -p 80:80 --name redissub redispub
+docker run -d -p 80:80 --name redissub redissub
 ```
