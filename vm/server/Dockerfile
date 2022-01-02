@@ -1,11 +1,9 @@
 FROM node:alpine
 
 WORKDIR /api
-COPY package*.json ./
-
-RUN npm i
 COPY . .
 
-EXPOSE 8080
+RUN npm i
+RUN npm run start
 
-CMD [ "npm", "run", "start" ]
+EXPOSE 80

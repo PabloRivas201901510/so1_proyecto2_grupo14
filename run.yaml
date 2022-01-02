@@ -1,0 +1,337 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: project
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: load
+  name: load
+  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load
+  template:
+    metadata:
+      labels:
+        app: load
+    spec:
+      containers:
+      - image: luisfelipedelgado/grpcclient
+        imagePullPolicy: Always
+        name: load
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: load
+  name: load
+  namespace: project
+spec:
+  ports:
+  - port: 3030
+    protocol: TCP
+    targetPort: 3030
+  selector:
+    app: load
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: load-ingress
+  namespace: project
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: load.so1g14.tk
+      http:
+        paths:
+          - backend:
+              service:
+                name: load
+                port: 
+                  number: 3030
+            path: /
+            pathType: Prefix
+
+
+---
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redispub
+  name: redispub
+  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redispub
+  template:
+    metadata:
+      labels:
+        app: redispub
+    spec:
+      containers:
+      - image: luisfelipedelgado/redispub
+        imagePullPolicy: Always
+        name: redispub
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redispub
+  name: redispub
+  namespace: project
+spec:
+  ports:
+  - port: 3030
+    protocol: TCP
+    targetPort: 3030
+  selector:
+    app: redispub
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: redispub-ingress
+  namespace: project
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: redispub.so1g14.tk
+      http:
+        paths:
+          - backend:
+              service:
+                name: redispub
+                port: 
+                  number: 3030
+            path: /
+            pathType: Prefix
+
+---
+
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redissub
+  name: redissub
+  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redissub
+  template:
+    metadata:
+      labels:
+        app: redissub
+    spec:
+      containers:
+      - image: luisfelipedelgado/redissub
+        imagePullPolicy: Always
+        name: redissub
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redissub
+  name: redissub
+  namespace: project
+spec:
+  ports:
+  - port: 6969
+    protocol: TCP
+    targetPort: 6969
+  selector:
+    app: redissub
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: redissub-ingress
+  namespace: project
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: redissub.so1g14.tk
+      http:
+        paths:
+          - backend:
+              service:
+                name: redissub
+                port: 
+                  number: 6969
+            path: /
+            pathType: Prefix
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grpcclient
+  name: grpcclient
+  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpcclient
+  template:
+    metadata:
+      labels:
+        app: grpcclient
+    spec:
+      containers:
+      - image: luisfelipedelgado/grpcclient
+        imagePullPolicy: Always
+        name: grpcclient
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: grpcclient
+  name: grpcclient
+  namespace: project
+spec:
+  ports:
+  - port: 3030
+    protocol: TCP
+    targetPort: 3030
+  selector:
+    app: grpcclient
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grpcclient-ingress
+  namespace: project
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: grpcclient.so1g14.tk
+      http:
+        paths:
+          - backend:
+              service:
+                name: grpcclient
+                port: 
+                  number: 3030
+            path: /
+            pathType: Prefix
+
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grpcserver
+  name: grpcserver
+  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpcserver
+  template:
+    metadata:
+      labels:
+        app: grpcserver
+    spec:
+      containers:
+      - image: luisfelipedelgado/grpcserver
+        imagePullPolicy: Always
+        name: grpcserver
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: grpcserver
+  name: grpcserver
+  namespace: project
+spec:
+  ports:
+  - port: 50051
+    protocol: TCP
+    targetPort: 50051
+  selector:
+    app: grpcserver
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grpcserver-ingress
+  namespace: project
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: grpcserver.so1g14.tk
+      http:
+        paths:
+          - backend:
+              service:
+                name: grpcserver
+                port: 
+                  number: 50051
+            path: /
+            pathType: Prefix
+
+---
+
+apiVersion: split.smi-spec.io/v1alpha2
+kind: TrafficSplit
+metadata:
+  name: function-split
+  namespace: project
+spec:
+  # The root service that clients use to connect to the destination application.
+  service: load
+  # Services inside the namespace with their own selectors, endpoints and configuration.
+  backends:
+  - service: grpcclient
+    weight: 50
+  - service: redispub
+    weight: 50

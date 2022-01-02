@@ -15,9 +15,9 @@ const express_1 = __importDefault(require("express"));
 const client = redis.createClient({
   url: 'redis://:grupo14so1@34.82.25.144:6379'
 });
-client.on('connect', function(){
+/*client.on('connect', function(){
   console.log("conectado redis");
-});
+});*/
 
 //---------- CONFIG SERVER
 let app = express()
@@ -64,7 +64,7 @@ async function getMongoDB(){
     ).toArray(function(err, result) {
       if (err) throw err;
       var s = JSON.stringify(result)
-      respuesta1 = "{ \"mongodb1\" : "+s+"},"
+      respuesta1 = "{ \"mongodb1\" : "+s+"}"
       db.close();
     });
   });
@@ -112,10 +112,7 @@ async function getMongoDB(){
 //------------- GET REDIS DATA
 async function getVacunados() {
   try {
-    try{
-      await client.connect();
-    }
-    catch{}
+    await client.connect();
     
     let retorno = await client.lRange('list-vacun-data', '0', '4');
     let retorno1 = await client.lLen('ninos');
@@ -123,7 +120,7 @@ async function getVacunados() {
     let retorno3 = await client.lLen('jovenes');
     let retorno4 = await client.lLen('adultos');
     let retorno5 = await client.lLen('vejez');
-    //respuesta += "{\"retorno\":["+retorno+"],\"retorno1\":"+retorno1+",\"retorno2\":"+retorno2+",\"retorno3\":"+retorno3+",\"retorno4\":"+retorno4+",\"retorno5\":"+retorno5+"}"
+    
     await client.quit();
     var envio = {
       "retorno" : retorno,
@@ -142,6 +139,8 @@ async function getVacunados() {
 }
 
 
+
+
 //----------- CONNEXION SOCKET.IO
 io.on('connection', (socket) => {
   console.log("conectado")
@@ -152,7 +151,7 @@ io.on('connection', (socket) => {
     //console.log("message", respuesta)
     
     socket.emit("message", respuesta + "|\n"+ respuesta1 +"|\n"+respuesta2+"|\n"+respuesta3 )
-    respuesta = ""
+    
   }, 5000);
 });
 
