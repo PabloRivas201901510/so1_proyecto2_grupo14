@@ -11,7 +11,7 @@ export class ServiceRedisService {
 
   constructor() {}
 
-  socket = io('http://34.82.25.144:8080');
+  socket = io('http://34.82.25.144:8080' || 'http://so1g14.tk:8080);
 
   public getNewMessage = () => {
     this.socket.on('message', (message) =>{
