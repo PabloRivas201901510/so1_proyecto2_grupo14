@@ -11,7 +11,7 @@ export class ServiceRedisService {
 
   constructor() {}
 
-  socket = io('http://localhost:5050');
+  socket = io('http://localhost:8080');
 
   public getNewMessage = () => {
     this.socket.on('message', (message) =>{
